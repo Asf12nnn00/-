@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ماشین حساب همه‌چیز‌تموم</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Vazirmatn', sans-serif;
+      background: linear-gradient(135deg, #111, #222);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      padding: 40px 20px;
+      min-height: 100vh;
+      transition: all 0.4s ease;
+    }
+
+    body.light-mode {
+      background: linear-gradient(135deg, #f3f3f3, #fff);
+      color: #111;
+    }
+
+    .calculator {
+      width: 100%;
+      max-width: 420px;
+      background: #2b2b2b;
+      border-radius: 25px;
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      transition: all 0.4s ease;
+    }
+
+    body.light-mode .calculator {
+      background: #ffffff;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      color: #111;
+    }
+
+    #display {
+      width: 100%;
+      font-size: 28px;
+      height: 60px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 15px;
+      background: #444;
+      color: white;
+      text-align: left;
+      margin-bottom: 20px;
+      direction: ltr;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.light-mode #display {
+      background: #f5f5f5;
+      color: #111;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+    }
+
+    button {
+      padding: 18px 0;
+      font-size: 18px;
+      border: none;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #3c3c3c, #2c2c2c);
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    button:hover {
+      background: linear-gradient(145deg, #555, #3d3d3d);
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    body.light-mode button {
+      background: linear-gradient(145deg, #dcdcdc, #eaeaea);
+      color: #111;
+    }
+
+    .operator {
+      background: linear-gradient(145deg, #ff9800, #e58f00);
+      color: #111;
+    }
+
+    .equal {
+      background: linear-gradient(145deg, #4caf50, #388e3c);
+      color: white;
+      grid-column: span 2;
+    }
+
+    .scientific {
+      background: linear-gradient(145deg, #2196f3, #1976d2);
+    }
+
+    .toggle-theme {
+      background: linear-gradient(145deg, #888, #666);
+      padding: 10px 18px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    body.light-mode .toggle-theme {
+      background: linear-gradient(145deg, #ccc, #aaa);
+      color: #111;
+    }
+
+    .history {
+      margin-top: 25px;
+      background: #1d1d1d;
+      border-radius: 15px;
+      padding: 15px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 15px;
+      line-height: 1.7;
+      direction: ltr;
+    }
+
+    body.light-mode .history {
+      background: #f1f1f1;
+      color: #111;
+    }
+
+    .history-item {
+      border-bottom: 1px solid #555;
+      padding: 5px 0;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    #display.result {
+      animation: flashResult 0.4s ease forwards;
+    }
+
+    @keyframes flashResult {
+      0% { background-color: #4caf50; color: white; }
+      100% { background-color: inherit; color: inherit; }
+    }
+
+    @media (max-width: 480px) {
+      .buttons {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <button class="toggle-theme" onclick="toggleTheme()">🌙/☀️ حالت شب / روشن</button>
+    <input type="text" id="display" readonly />
+    <input type="hidden" id="realDisplay" />
+    <div class="buttons">
+      <button onclick="clearDisplay()">C</button>
+      <button onclick="deleteLast()">⌫</button>
+      <button onclick="useAns()">Ans</button>
+      <button class="operator" onclick="appendToDisplay('/', '÷')">÷</button>
+
+      <button onclick="appendToDisplay('7')">7</button>
+      <button onclick="appendToDisplay('8')">8</button>
+      <button onclick="appendToDisplay('9')">9</button>
+      <button class="operator" onclick="appendToDisplay('*', '×')">×</button>
+
+      <button onclick="appendToDisplay('4')">4</button>
+      <button onclick="appendToDisplay('5')">5</button>
+      <button onclick="appendToDisplay('6')">6</button>
+      <button class="operator" onclick="appendToDisplay('-', '−')">−</button>
+
+      <button onclick="appendToDisplay('1')">1</button>
+      <button onclick="appendToDisplay('2')">2</button>
+      <button onclick="appendToDisplay('3')">3</button>
+      <button class="operator" onclick="appendToDisplay('+')">+</button>
+
+      <button onclick="appendToDisplay('0')">0</button>
+      <button onclick="appendToDisplay('.')">.</button>
+      <button class="equal" onclick="calculate()">=</button>
+
+      <button class="scientific" onclick="appendToDisplay('Math.sin(', 'sin(')">sin</button>
+      <button class="scientific" onclick="appendToDisplay('Math.cos(', 'cos(')">cos</button>
+      <button class="scientific" onclick="appendToDisplay('Math.tan(', 'tan(')">tan</button>
+      <button class="scientific" onclick="appendToDisplay('Math.sqrt(', '√(')">√</button>
+      <button class="scientific" onclick="appendToDisplay('Math.log10(', 'log(')">log</button>
+      <button class="scientific" onclick="appendToDisplay('**', '^')">^</button>
+      <button onclick="appendToDisplay(')')">)</button>
+    </div>
+    <div class="history" id="history"></div>
+  </div>
+
+  <script>
+    const display = document.getElementById('display');
+    const realDisplay = document.getElementById('realDisplay');
+    const historyDiv = document.getElementById('history');
+    let lastAnswer = '';
+    let history = [];
+
+    function appendToDisplay(realVal, visibleVal = null) {
+      visibleVal = visibleVal || realVal;
+      display.value += visibleVal;
+      realDisplay.value += realVal;
+    }
+
+    function clearDisplay() {
+      display.value = '';
+      realDisplay.value = '';
+    }
+
+    function deleteLast() {
+      display.value = display.value.slice(0, -1);
+      realDisplay.value = realDisplay.value.slice(0, -1);
+    }
+
+    function useAns() {
+      if (lastAnswer !== '') {
+        display.value += lastAnswer;
+        realDisplay.value += lastAnswer;
+      }
+    }
+
+    // تابع برای بستن پرانتزهای باز در رشته ورودی
+    function fixUnclosedParentheses(expr) {
+      let openCount = 0;
+      for (let ch of expr) {
+        if (ch === '(') openCount++;
+        else if (ch === ')') {
+          if (openCount > 0) openCount--;
+        }
+      }
+      return expr + ')'.repeat(openCount);
+    }
+
+    function calculate() {
+      try {
+        let fixedExpr = fixUnclosedParentheses(realDisplay.value);
+        fixedExpr = fixedExpr.replace(/\^/g, '**'); // تبدیل ^ به توان
+        const result = eval(fixedExpr);
+        lastAnswer = result;
+        addToHistory(display.value, result);
+        display.value = result;
+        realDisplay.value = result;
+
+        display.classList.add('result');
+        setTimeout(() => display.classList.remove('result'), 400);
+      } catch {
+        display.value = 'خطا!';
+        realDisplay.value = '';
+      }
+    }
+
+    function addToHistory(expression, result) {
+      if (!expression.trim()) return;
+      history.push({ expression, result });
+      if (history.length > 10) history.shift();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      historyDiv.innerHTML = '';
+      history.slice().reverse().forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.textContent = `${item.expression} = ${item.result}`;
+        historyDiv.appendChild(div);
+      });
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('light-mode');
+    }
+
+    // پشتیبانی از کیبورد
+    document.addEventListener('keydown', (e) => {
+      const key = e.key;
+      if ('0123456789.+-*/()'.includes(key)) appendToDisplay(key);
+      else if (key === 'Enter') calculate();
+      else if (key === 'Backspace') deleteLast();
+      else if (key.toLowerCase() === 'c') clearDisplay();
+    });
+  </script>
+</body>
+</html>
